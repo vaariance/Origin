@@ -1,0 +1,9 @@
+{
+  "platforms": ["android"],
+  "ios": {
+    "modules": ["OneTapGoogleSignInModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.googlesignin.OneTapGoogleSignInModule"]
+  }
+}
