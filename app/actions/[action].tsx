@@ -134,7 +134,7 @@ const Action = () => {
 
   return (
     <View className="flex-1">
-      <NfcActiveAnimate>
+      <NfcActiveAnimate success={isRead}>
         <SmartphoneNfc className="w-8 h-8 text-white" />
       </NfcActiveAnimate>
       <MotiView className="h-1/2 pb-9" entering={SlideInDown.duration(500)}>
@@ -168,14 +168,16 @@ const Action = () => {
               </CardContent>
             ) : (
               <CardTitle className="text-4xl text-center font-semibold font-poppins-semibold">
-                {action === ActionType.Receive
+                {isRead
+                  ? "Complete!"
+                  : action === ActionType.Receive
                   ? "Waiting for sender"
                   : "Waiting for receiver"}
               </CardTitle>
             )}
             <CardDescription className="text-xl text-center font-poppins-regular">
               {isRead
-                ? "Waiting for sender to complete payment"
+                ? "Sender has your details, you can now close this page"
                 : message
                 ? "Please authenticate to complete payment"
                 : action === ActionType.Receive
@@ -191,7 +193,9 @@ const Action = () => {
                 className="rounded-2xl shadow-lg p-4"
                 onPress={() => cleanUp(action)}
               >
-                <Text className="font-bold font-poppins-bold">Cancel</Text>
+                <Text className="font-bold font-poppins-bold">
+                  {isRead ? "Close" : "Cancel"}
+                </Text>
               </Button>
             )}
           </CardFooter>

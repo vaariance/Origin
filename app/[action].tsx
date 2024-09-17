@@ -28,7 +28,7 @@ const ActionSheet = () => {
           >
             <Usdc className="h-8 w-8" />
             <Text className="text-base font-normal font-poppins-regular">
-              {balance} USDC available
+              {Number(balance).toFixed(0)} USDC available
             </Text>
           </Badge>
         </View>
@@ -46,7 +46,9 @@ const ActionSheet = () => {
         <Button
           className="rounded-2xl shadow-2xl w-4/5"
           size={"lg"}
-          disabled={!value || Number(value) <= 0}
+          disabled={
+            !value || Number(value) <= 0 || Number(value) > Number(balance)
+          }
         >
           <Text className="font-bold font-poppins-bold">
             {query.actionButtonText ?? "Continue"}

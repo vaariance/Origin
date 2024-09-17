@@ -1,4 +1,4 @@
-import { View, Text, Pressable, ViewProps } from "react-native";
+import { View, Text, ViewProps } from "react-native";
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useGlobalContext } from "~/context/provider";
@@ -12,7 +12,6 @@ import Animated, {
   FadeInUp,
   FadeOutDown,
   FadeOutUp,
-  SlideInUp,
 } from "react-native-reanimated";
 
 export enum WalletHeaderState {
@@ -111,7 +110,7 @@ const WalletHeaderExpanded = ({
     </View>
     <Animated.View
       layout={CurvedTransition}
-      entering={SlideInUp.delay(150)
+      entering={FadeInUp.delay(150)
         .easing(Easing.ease)
         .springify()
         .damping(100)

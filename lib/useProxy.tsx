@@ -13,20 +13,8 @@ export interface Transaction {
   direction: "sent" | "received" | "self";
 }
 
-interface RpcResponse {
-  result?: {
-    txs: Array<{
-      hash: string;
-      height: string;
-      tx_result: {
-        log: string;
-      };
-    }>;
-  };
-}
-
 export type ProxyErr = { error?: string };
-export type GetBalanceReturnType = { balance: Coin } & ProxyErr;
+export type GetBalanceReturnType = Coin & ProxyErr;
 export type SimulateTxReturnType = { result: number } & ProxyErr;
 export type GenerateSignDocRequestType = [
   signerAddress: string,
@@ -68,9 +56,10 @@ export type BroadcastTxReturnType = {
   gasWanted: bigint;
 } & ProxyErr;
 
+export type GetTransactionsReturnType = { items: Transaction[] } & ProxyErr;
+
 export const useProxy = () => {
   const endpoint = "https://vvyyum1eoc.execute-api.us-east-1.amazonaws.com";
-  const rpc = "https://noble-rpc.polkachu.com/";
 
   const instance: AxiosInstance = axios.create({
     baseURL: endpoint,
@@ -130,109 +119,18 @@ export const useProxy = () => {
     return Ok(response.data);
   };
 
-  async function getTransactions(
-    walletAddress: NobleAddress,
-    nextPage: number = 1,
-    rpcUrl: string = rpc
-  ): Promise<Transaction[]> {
-    const senderQuery = encodeURIComponent(`message.sender='${walletAddress}'`);
-    const recipientQuery = encodeURIComponent(
-      `transfer.recipient='${walletAddress}'`
+  const getTransactions = async (
+    address: NobleAddress,
+    nextPage: number = 1
+  ): Promise<Result<GetTransactionsReturnType>> => {
+    const response = await instance.get<GetTransactionsReturnType>(
+      `/txs/${address}?nextPage=${nextPage}`
     );
-
-    const baseUrl = new URL(`${rpcUrl}/tx_search`);
-    const commonParams = new URLSearchParams({
-      page: nextPage.toString(),
-      per_page: "50",
-      order_by: '"asc"',
-    });
-
-    const sentUrl = new URL(baseUrl);
-    sentUrl.searchParams.append("query", `"${senderQuery}"`);
-    sentUrl.search += "&" + commonParams.toString();
-
-    const receivedUrl = new URL(baseUrl);
-    receivedUrl.searchParams.append("query", `"${recipientQuery}"`);
-    receivedUrl.search += "&" + commonParams.toString();
-
-    const [sentData, receivedData]: [RpcResponse, RpcResponse] =
-      await Promise.all([
-        fetch(sentUrl).then((res: Response) => res.json()),
-        fetch(receivedUrl).then((res: Response) => res.json()),
-      ]);
-
-    const combinedTxs = (sentData.result?.txs || []).concat(
-      receivedData.result?.txs || []
-    );
-
-    const transactionsMap = new Map<string, Transaction>();
-
-    for (const tx of combinedTxs) {
-      const txHash = tx.hash.toUpperCase();
-      const height = tx.height;
-
-      if (transactionsMap.has(txHash)) {
-        continue;
-      }
-
-      const logs: Array<{
-        events: Array<{
-          type: string;
-          attributes: Array<{ key: string; value: string }>;
-        }>;
-      }> = JSON.parse(tx.tx_result.log);
-
-      let from = "";
-      let to = "";
-      let amount = "";
-      let direction: "sent" | "received" | "self";
-
-      for (const log of logs) {
-        const events = log.events;
-        const transferEvent = events.find((event) => event.type === "transfer");
-        if (!transferEvent) {
-          continue;
-        }
-
-        const attributes: Record<string, string> = {};
-        for (const attr of transferEvent.attributes) {
-          attributes[attr.key] = attr.value;
-        }
-
-        if (attributes["amount"] && attributes["amount"].endsWith("uusdc")) {
-          const amountStr = attributes["amount"];
-          amount = amountStr.replace("uusdc", "");
-          from = attributes["sender"];
-          to = attributes["recipient"];
-
-          if (from === walletAddress && to !== walletAddress) {
-            direction = "sent";
-          } else if (to === walletAddress && from !== walletAddress) {
-            direction = "received";
-          } else if (from === walletAddress && to === walletAddress) {
-            direction = "self";
-          } else {
-            continue;
-          }
-
-          transactionsMap.set(txHash, {
-            txHash,
-            height,
-            from,
-            to,
-            amount,
-            direction,
-          });
-
-          break;
-        }
-      }
+    if (response.data.error) {
+      return Err(response.data.error);
     }
-
-    return Array.from(transactionsMap.values()).sort(
-      (a, b) => Number(b.height) - Number(a.height)
-    );
-  }
+    return Ok(response.data);
+  };
 
   return {
     getTransactions,

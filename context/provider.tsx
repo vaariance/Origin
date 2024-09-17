@@ -105,25 +105,25 @@ export const GlobalProvider = ({ children }: PropsWithChildren) => {
 
   const fetchBalance = useCallback(async () => {
     if (user) {
-      const balance = await getBalance(user?.address);
+      const balance = await getBalance(user.address);
       if (balance.ok) {
-        setBalance(balance.unwrap().balance.amount);
+        setBalance(balance.unwrap().amount);
       }
     }
-  }, []);
+  }, [user?.address]);
 
   const fetchTransactions = useCallback(async () => {
     if (user) {
       const txs = await getTransactions(user.address);
-      return txs;
+      if (txs.ok) {
+        return txs.unwrap().items;
+      }
     }
   }, [user?.address]);
 
   useMemo(() => {
     fetchBalance();
   }, [user?.address]);
-
-  const refreshBalance = () => fetchBalance();
 
   return (
     <GlobalContext.Provider
@@ -140,7 +140,7 @@ export const GlobalProvider = ({ children }: PropsWithChildren) => {
         remove,
         removeUser,
         balance,
-        refreshBalance,
+        refreshBalance: fetchBalance,
         fetchTransactions,
       }}
     >

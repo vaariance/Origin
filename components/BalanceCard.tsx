@@ -28,7 +28,7 @@ export const BalanceCard = ({ hideFooter = false, balance = "0.00" }) => {
               $
             </Text>
             <Text className="text-4xl font-bold font-poppins-bold text-start text-muted-foreground">
-              {Number(balance).toFixed(2)}
+              {balance}
             </Text>
           </View>
         </CardContent>

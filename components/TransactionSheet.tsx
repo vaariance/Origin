@@ -1,7 +1,7 @@
 import { FlatList, View } from "react-native";
 import { Text } from "./ui/text";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Card } from "./ui/card";
 import Animated from "react-native-reanimated";
 import { useGlobalContext } from "~/context/provider";
@@ -165,13 +165,9 @@ const TransactionItem = ({
       </View>
     </View>
     {item.direction === "sent" ? (
-      <Text className="font-poppins-medium">
-        - ${Number(item.amount).toFixed(2)}
-      </Text>
+      <Text className="font-poppins-medium">- ${item.amount}</Text>
     ) : (
-      <Text className="font-poppins-medium">
-        + ${Number(item.amount).toFixed(2)}
-      </Text>
+      <Text className="font-poppins-medium">+ ${item.amount}</Text>
     )}
   </MotiView>
 );

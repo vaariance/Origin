@@ -24,5 +24,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "include": ["proxy.d.ts"]
+  "include": ["proxy.d.ts"],
+  "exclude": ["node_modules"]
 }
