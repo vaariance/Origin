@@ -24,12 +24,11 @@ import {
   NFCTagType4,
 } from "react-native-hce";
 import { useGlobalContext } from "~/context/provider";
-import { ToastType } from "~/lib/utils";
-import Toast from "react-native-toast-message";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Action as ActionType } from "~/constants";
 import { BiometricAnimate } from "~/components/BiometricAnimate";
 import { Ramp } from "~/components/Ramp";
+import { Toast, ToastType } from "~/lib/toast";
 
 const HCESession = Object.assign(_HCESession, {
   async initialize(tag: NFCTagType4) {
@@ -92,9 +91,11 @@ const Action = () => {
       .then((msg) => {
         setMessage(JSON.parse(msg?.ndefMessage[0].payload[0]));
       })
-      .catch(() => {
+      .catch((e) => {
+        console.log(e);
         Toast.show({
           text1: "Unable to connect to receipient",
+          text2: "please cancel current session an re-initiate request",
           type: ToastType.Error,
         });
       })
@@ -117,12 +118,17 @@ const Action = () => {
       default:
         break;
     }
-    router.replace("/");
+    router.navigate("/");
   }
 
   if (action === ActionType.Buy || action === ActionType.Sell) {
     return (
-      <Ramp uri="https://sandbox--kado.netlify.app/?apiKey=YOUR_WIDGET_ID&isMobileWebview=true&onPayCurrency=USD&onPayAmount=15&onToAddress=0xC2e4a0E882eaaE993087954c59aC8031cF6bd19d&network=NOBLE&onRevCurrency=USDC&email=pesouche@gmail.com&mode=minimal" />
+      <Ramp
+        value={value}
+        receiver={user!.address}
+        email={user!.id}
+        product={action}
+      />
     );
   }
 

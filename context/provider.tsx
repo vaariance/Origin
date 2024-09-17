@@ -10,7 +10,7 @@ import {
 import * as SecureStore from "expo-secure-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NobleAddress } from "~/lib/useAuth";
-import { useProxy } from "~/lib/useProxy";
+import { Transaction, useProxy } from "~/lib/useProxy";
 
 export type OriginSigner = {
   unencryptedKey: string;
@@ -36,6 +36,7 @@ type GlobalContextType = Partial<{
   setUser: React.Dispatch<React.SetStateAction<OriginUser | undefined>>;
   balance: string;
   refreshBalance: () => void;
+  fetchTransactions: () => Promise<Transaction[] | undefined>;
   // async storage ops
   saveUser: (user: OriginUser) => Promise<void>;
   getUser: () => Promise<OriginUser | null>;
@@ -78,7 +79,7 @@ const GlobalContext = createContext<GlobalContextType>({});
 export const useGlobalContext = () => useContext(GlobalContext);
 
 export const GlobalProvider = ({ children }: PropsWithChildren) => {
-  const { getBalance } = useProxy();
+  const { getBalance, getTransactions } = useProxy();
   const [signedIn, setSignedIn] = useState<boolean>(false);
   const [user, setUser] = useState<OriginUser>();
   const [loading, setLoading] = useState<boolean>(true);
@@ -111,6 +112,13 @@ export const GlobalProvider = ({ children }: PropsWithChildren) => {
     }
   }, []);
 
+  const fetchTransactions = useCallback(async () => {
+    if (user) {
+      const txs = await getTransactions(user.address);
+      return txs;
+    }
+  }, [user?.address]);
+
   useMemo(() => {
     fetchBalance();
   }, [user?.address]);
@@ -133,6 +141,7 @@ export const GlobalProvider = ({ children }: PropsWithChildren) => {
         removeUser,
         balance,
         refreshBalance,
+        fetchTransactions,
       }}
     >
       {children}

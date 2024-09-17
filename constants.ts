@@ -1,25 +1,34 @@
 export const NAV_THEME = {
   light: {
-    background: "hsl(0 0% 100%)", // background
-    border: "hsl(220 13% 91%)", // border
-    card: "hsl(0 0% 100%)", // card
-    notification: "hsl(0 84.2% 60.2%)", // destructive
-    primary: "hsl(262.1 83.3% 57.8%)", // primary
-    text: "hsl(224 71.4% 4.1%)", // foreground
+    background: "#FFFFFF", // background
+    border: "#E5E7EB", // border
+    card: "#FFFFFF", // card
+    notification: "#EF4444", // destructive
+    primary: "#7C3AED", // primary
+    text: "#030712", // foreground
+    secondary: "#f3f4f6",
+    success: "#5fd65d",
   },
   dark: {
-    background: "hsl(224 71.4% 4.1%)", // background
-    border: "hsl(215 27.9% 16.9%)", // border
-    card: "hsl(224 71.4% 4.1%)", // card
-    notification: "hsl(0 62.8% 30.6%)", // destructive
-    primary: "hsl(263.4 70% 50.4%)", // primary
-    text: "hsl(210 20% 98%)", // foreground
+    background: "#030712", // background
+    border: "#1F2937", // border
+    card: "#030712", // card
+    notification: "#7F1D1D", // destructive
+    primary: "#6D28D9", // primary
+    text: "#F9FAFB", // foreground
+    secondary: "#1f2937",
+    success: "#207b1f",
   },
 };
 
+export const NavTheme = {
+  ["light"]: { dark: false, colors: NAV_THEME.light },
+  ["dark"]: { dark: true, colors: NAV_THEME.dark },
+};
+
 export enum Action {
-  Send = "Send",
-  Receive = "Receive",
-  Buy = "Buy",
-  Sell = "Sell",
+  Send = "SEND",
+  Receive = "RECEIVE",
+  Buy = "BUY",
+  Sell = "SELL",
 }

@@ -1,9 +1,46 @@
+import { useMemo } from "react";
 import { StyleSheet, Linking } from "react-native";
-import Toast from "react-native-toast-message";
 import { WebView } from "react-native-webview";
-import { ToastType } from "~/lib/utils";
+import { NavTheme } from "~/constants";
+import { Toast, ToastType } from "~/lib/toast";
+import { NobleAddress } from "~/lib/useAuth";
+import { useColorScheme } from "~/lib/useColorScheme";
 
-export const Ramp = ({ uri }: { uri: string }) => {
+type RampProps = {
+  value: string;
+  receiver: NobleAddress;
+  email: string;
+  product: "BUY" | "SELL";
+};
+
+export const Ramp = ({ value, receiver, email, product }: RampProps) => {
+  const { colorScheme } = useColorScheme();
+
+  const uri = useMemo(() => {
+    const colors = NavTheme[colorScheme];
+    const baseUrl = new URL("https://sandbox--kado.netlify.app/");
+    const searchParams = new URLSearchParams({
+      apiKey: "YOUR_WIDGET_ID",
+      isMobileWebview: "true",
+      onPayCurrency: "USD",
+      onPayAmount: value,
+      onToAddress: receiver,
+      network: "NOBLE",
+      onRevCurrency: "USDC",
+      email,
+      mode: "minimal",
+      product,
+      theme: colorScheme,
+      primaryColor: colors.colors.primary,
+      secondaryColor: colors.colors.secondary,
+      successColor: colors.colors.success,
+      warningColor: colors.colors.border,
+      errorColor: colors.colors.notification,
+      fiatMethodList: "card, debit_only",
+    });
+    return baseUrl.href + "?" + searchParams.toString();
+  }, [colorScheme]);
+
   return (
     <WebView
       containerStyle={styles.modalContainer}

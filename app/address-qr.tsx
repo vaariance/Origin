@@ -23,14 +23,7 @@ const AddressQrCenter = () => {
   return (
     <View className="flex-1 items-center justify-around">
       <View>
-        <Animated.View
-          // entering={FadeIn.delay(300)
-          //   .duration(1000)
-          //   .springify()
-          //   .easing(Easing.out(Easing.quad))
-          //   .reduceMotion(ReduceMotion.Never)}
-          className="bg-white rounded-2xl overflow-hidden shadow-2xl"
-        >
+        <Animated.View className="rounded-2xl overflow-hidden bg-secondary">
           <QRCodeStyled
             data={user?.address}
             padding={25}
@@ -42,7 +35,7 @@ const AddressQrCenter = () => {
               options: {
                 start: [0, 0],
                 end: [1, 1],
-                colors: ["#8C52FF", "#8C52FF"],
+                colors: ["#EC52FF", "#5C52FF"],
                 locations: [0, 1],
               },
             }}

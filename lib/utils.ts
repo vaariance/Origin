@@ -54,8 +54,3 @@ export const Ok = <T>(value: T): Result<T, never> => ({
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-export enum ToastType {
-  Success = "lettuce",
-  Error = "tomato",
-}

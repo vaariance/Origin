@@ -24,7 +24,7 @@ const ExoticNumberInput = (props: ExoticNumberInputProps) => {
       </Text>
       <Input
         {...props}
-        className="text-7xl font-bold font-poppins-bold text-start w-auto min-w-[150px]"
+        className="text-7xl text-muted-foreground font-bold font-poppins-bold text-start w-auto min-w-[150px]"
         onChangeText={handleChangeText}
         inputMode="numeric"
         placeholder="0.00"

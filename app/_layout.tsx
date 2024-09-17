@@ -2,69 +2,20 @@ import "~/global.css";
 
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Theme, ThemeProvider } from "@react-navigation/native";
-import { router, SplashScreen, Stack, useNavigation } from "expo-router";
+import { ThemeProvider } from "@react-navigation/native";
+import { SplashScreen, Stack, useNavigation } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { NAV_THEME } from "~/constants";
+import { NavTheme } from "~/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
 import { PortalHost } from "@rn-primitives/portal";
 import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import * as popins from "@expo-google-fonts/poppins";
 import { GlobalProvider } from "~/context/provider";
-import Toast, { type BaseToastProps } from "react-native-toast-message";
-import { Text } from "~/components/ui/text";
-import Animated, { StretchInX, StretchOutY } from "react-native-reanimated";
-import { cn } from "~/lib/utils";
-import { ViewProps } from "react-native";
+import { Toaster } from "sonner-native";
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { X } from "~/lib/icons/Close";
 import { ArrowLeft } from "~/lib/icons/Back";
-
-const toastConfig = {
-  lettuce: ({ text1, text2, ...props }: ViewProps & BaseToastProps) => (
-    <Animated.View
-      {...props}
-      entering={StretchInX.duration(500)}
-      exiting={StretchOutY.duration(500)}
-      className={cn(
-        "rounded-2xl flex-1 justify-center w-3/4 py-2 px-6 mt-4 h-14 text-white shadow-lg bg-success backdrop-blur-sm font-poppins-regular",
-        props.className
-      )}
-    >
-      <Text className="text-base font-semibold font-poppins-semibold">
-        {text1}
-      </Text>
-      {text2 && <Text>{text2}</Text>}
-    </Animated.View>
-  ),
-  tomato: ({ text1, text2, ...props }: ViewProps & BaseToastProps) => (
-    <Animated.View
-      {...props}
-      entering={StretchInX.duration(500)}
-      exiting={StretchOutY.duration(500)}
-      className={cn(
-        "rounded-2xl flex-1 justify-center w-3/4 py-2 px-6 mt-4 h-14 text-white shadow-lg bg-destructive backdrop-blur-sm font-poppins-regular",
-        props.className
-      )}
-    >
-      <Text className="text-base font-semibold font-poppins-semibold">
-        {text1}
-      </Text>
-      {text2 && <Text>{text2}</Text>}
-    </Animated.View>
-  ),
-};
-
-const LIGHT_THEME: Theme = {
-  dark: false,
-  colors: NAV_THEME.light,
-};
-
-const DARK_THEME: Theme = {
-  dark: true,
-  colors: NAV_THEME.dark,
-};
 
 export const defaultModalOptions = {
   presentation: "modal" as const,
@@ -157,7 +108,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView>
       <GlobalProvider>
-        <ThemeProvider value={LIGHT_THEME}>
+        <ThemeProvider value={NavTheme[colorScheme]}>
           <StatusBar style={"light"} />
           <Stack>
             <Stack.Screen
@@ -210,7 +161,7 @@ export default function RootLayout() {
             />
           </Stack>
           <PortalHost />
-          <Toast config={toastConfig} />
+          <Toaster />
         </ThemeProvider>
       </GlobalProvider>
     </GestureHandlerRootView>

@@ -13,10 +13,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { NobleAddress, useAuth } from "~/lib/useAuth";
 import { router } from "expo-router";
 import { OriginUser, useGlobalContext } from "~/context/provider";
-import Toast from "react-native-toast-message";
 import { useState } from "react";
-import { ToastType } from "~/lib/utils";
 import { toHex } from "~/lib/cosmos/crypto";
+import { Toast, ToastType } from "~/lib/toast";
 
 export default function Onboarding() {
   const { signIn, newSigningKey } = useAuth();

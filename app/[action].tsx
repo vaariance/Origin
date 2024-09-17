@@ -43,7 +43,11 @@ const ActionSheet = () => {
         }}
         asChild
       >
-        <Button className="rounded-2xl shadow-2xl w-4/5" size={"lg"}>
+        <Button
+          className="rounded-2xl shadow-2xl w-4/5"
+          size={"lg"}
+          disabled={!value || Number(value) <= 0}
+        >
           <Text className="font-bold font-poppins-bold">
             {query.actionButtonText ?? "Continue"}
           </Text>
