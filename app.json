@@ -30,7 +30,13 @@
         }
       ],
       "react-native-nfc-manager",
-      ["react-native-bootsplash", { "assetsDir": "assets/bootsplash" }]
+      ["react-native-bootsplash", { "assetsDir": "assets/bootsplash" }],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow Origin to use Face ID."
+        }
+      ]
     ],
     "autolinking": {
       "exclude": ["expo-splash-screen"]

@@ -21,7 +21,7 @@ export type GenerateSignDocRequestType = [
   signerPubKey: Uint8Array | string,
   messages: EncodeObject[],
   fee: StdFee,
-  memo?: string
+  memo?: string,
 ];
 
 export type GenerateSignDocReturnType<T = Uint8Array> = {
@@ -31,9 +31,9 @@ export type GenerateSignDocReturnType<T = Uint8Array> = {
   accountNumber: bigint;
 } & ProxyErr;
 
-export type BroadcastTxRequestType = [
-  signed: Omit<GenerateSignDocReturnType, "error">,
-  signature: { signature: string }
+export type BroadcastTxRequestType<T = Uint8Array> = [
+  signed: Omit<GenerateSignDocReturnType<T>, "error">,
+  signature: { signature: string },
 ];
 
 export type BroadcastTxReturnType = {

@@ -29,6 +29,9 @@ import { Action as ActionType } from "~/constants";
 import { BiometricAnimate } from "~/components/BiometricAnimate";
 import { Ramp } from "~/components/Ramp";
 import { Toast, ToastType } from "~/lib/toast";
+import { NobleAddress, useAuth } from "~/lib/useAuth";
+import { fromBase64, fromHex } from "~/lib/cosmos/crypto";
+import { Account } from "~/lib/cosmos/account";
 
 const HCESession = Object.assign(_HCESession, {
   async initialize(tag: NFCTagType4) {
@@ -48,7 +51,8 @@ const HCESession = Object.assign(_HCESession, {
 });
 
 const Action = () => {
-  const { user } = useGlobalContext();
+  const { user, getValueFor } = useGlobalContext();
+  const { parsePayCommand, executePayCommand } = useAuth();
   const { action, value } = useLocalSearchParams<
     Record<string, string> & { action: string }
   >();
@@ -84,6 +88,44 @@ const Action = () => {
     }
   }, []);
 
+  const transfer = async () => {
+    const key = await getValueFor?.("origin_al_key");
+    if (user && message && key) {
+      const account = Account.fromMnemonic(JSON.parse(key).unencryptedKey);
+      await executePayCommand({
+        onSuccess: () => {
+          router.navigate("/actions/action-success");
+        },
+        onError: (reason) => {
+          Toast.show({
+            text1: reason,
+            type: ToastType.Error,
+          });
+        },
+        sign: async (signDoc) => {
+          const signed = await account.signDirect(user.address, signDoc);
+          return [signed.signed, signed.signature];
+        },
+        getPublicKey: async () => {
+          switch (user.publicKeyEncodedType) {
+            case "hex":
+              return fromHex(user.publicKey);
+            case "base64":
+              return fromBase64(user.publicKey);
+            default:
+              return user.publicKey;
+          }
+        },
+        command: parsePayCommand({
+          from: user.address,
+          to: message.address as NobleAddress,
+          amount: (Number(value) * 1e6).toString(),
+          memo: "",
+        }),
+      });
+    }
+  };
+
   async function readNdef() {
     await NfcManager.requestTechnology(NfcTech.Ndef);
     await NfcManager.ndefHandler
@@ -91,12 +133,8 @@ const Action = () => {
       .then((msg) => {
         const message = JSON.parse(msg?.ndefMessage[0].payload[0]);
         setMessage(message);
-        Toast.show({
-          text1: message.address,
-          text2: message.name,
-          type: ToastType.Success,
-        });
       })
+      .then(transfer)
       .catch((e) => {
         console.log(e);
         Toast.show({
@@ -177,18 +215,18 @@ const Action = () => {
                 {isRead
                   ? "Complete!"
                   : action === ActionType.Receive
-                  ? "Waiting for sender"
-                  : "Waiting for receiver"}
+                    ? "Waiting for sender"
+                    : "Waiting for receiver"}
               </CardTitle>
             )}
             <CardDescription className="text-xl text-center font-poppins-regular">
               {isRead
                 ? "Sender has your details, you can now close this page"
                 : message
-                ? "Please authenticate to complete payment"
-                : action === ActionType.Receive
-                ? "move your device closer to the sender"
-                : "move your device closer to the receipient"}
+                  ? "Please authenticate to complete payment"
+                  : action === ActionType.Receive
+                    ? "move your device closer to the sender"
+                    : "move your device closer to the receipient"}
             </CardDescription>
           </CardHeader>
           <CardFooter>

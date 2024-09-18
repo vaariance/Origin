@@ -15,6 +15,7 @@ import {
   GenerateSignDocReturnType,
   useProxy,
 } from "./useProxy";
+import * as LocalAuthentication from "expo-local-authentication";
 
 export interface Coin {
   readonly denom: string;
@@ -42,6 +43,16 @@ type PayCommand = {
 };
 
 export type NobleAddress = `noble1${string}`;
+
+type ExecutePayCommandReuestType = {
+  onSuccess?: (response: BroadcastTxReturnType) => void;
+  onError?: (reason: string) => void;
+  sign: (
+    signDoc: GenerateSignDocReturnType
+  ) => Promise<BroadcastTxRequestType | undefined>;
+  getPublicKey: () => Promise<Uint8Array | string>;
+  command: PayCommand;
+};
 
 export const useAuth = () => {
   const proxy = useProxy();
@@ -91,16 +102,16 @@ export const useAuth = () => {
   };
 
   const parsePayCommand = (args: {
-    from?: NobleAddress;
+    from: NobleAddress;
     to: NobleAddress;
-    amount: bigint;
+    amount: string;
     memo?: string;
-  }): Partial<PayCommand> => {
+  }): PayCommand => {
     const { from, to, amount, memo } = args;
     return {
       from,
       to,
-      amount: [{ denom: "uusdc", amount: amount.toString() }],
+      amount: [{ denom: "uusdc", amount }],
       fee: {
         amount: [{ denom: "uusdc", amount: "15000" }],
         gas: "150000",
@@ -126,15 +137,7 @@ export const useAuth = () => {
     ];
   };
 
-  const executePayCommand = async (args: {
-    onSuccess?: (response: BroadcastTxReturnType) => void;
-    onError?: (reason: string) => void;
-    sign: (
-      signDoc: GenerateSignDocReturnType
-    ) => Promise<BroadcastTxRequestType>;
-    getPublicKey: () => Promise<Uint8Array | string>;
-    command: PayCommand;
-  }) => {
+  const executePayCommand = async (args: ExecutePayCommandReuestType) => {
     const { command, getPublicKey, sign, onSuccess, onError } = args;
     const { from, to, amount, fee, memo } = command;
     const pubKey = await getPublicKey();
@@ -149,6 +152,8 @@ export const useAuth = () => {
       return onError?.(signDoc.unwrap_err());
     }
     const signed = await sign(signDoc.unwrap());
+    if (!signed) return;
+
     const result = await proxy.broadcastTx(...signed);
     if (result.error) {
       return onError?.(result.unwrap_err());
@@ -157,12 +162,43 @@ export const useAuth = () => {
     }
   };
 
+  const withBiometricAuth = (
+    fn: (args: ExecutePayCommandReuestType) => Promise<void>
+  ) => {
+    return async (args: ExecutePayCommandReuestType): Promise<void> => {
+      const sign = async (signDoc: GenerateSignDocReturnType) => {
+        const isBiometricAvailable =
+          await LocalAuthentication.hasHardwareAsync();
+        const savedBiometrics =
+          isBiometricAvailable && (await LocalAuthentication.isEnrolledAsync());
+
+        if (savedBiometrics) {
+          const biometricAuthResult =
+            await LocalAuthentication.authenticateAsync({
+              biometricsSecurityLevel: "strong",
+              promptMessage: "Authenticate to confirm transaction",
+              cancelLabel: "Cancel",
+              disableDeviceFallback: true,
+            });
+
+          if (biometricAuthResult.success) {
+            return args.sign(signDoc);
+          } else if (biometricAuthResult.error) {
+            args.onError?.(biometricAuthResult.error);
+          }
+        }
+        args.onError?.("Biometric authentication not available");
+      };
+      return fn({ ...args, sign });
+    };
+  };
+
   return {
     signIn: _signIn,
     signOut,
     newSigningKey,
     syncSigningKey: _syncSigningKey,
     parsePayCommand,
-    executePayCommand,
+    executePayCommand: withBiometricAuth(executePayCommand),
   };
 };

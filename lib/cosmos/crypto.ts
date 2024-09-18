@@ -110,3 +110,7 @@ function encodeSecp256k1Pubkey(pubkey: Uint8Array) {
 export function toBase64(data: Uint8Array) {
   return base64js.fromByteArray(data);
 }
+
+export function fromBase64(data: string) {
+  return base64js.toByteArray(data);
+}
