@@ -89,7 +89,13 @@ const Action = () => {
     await NfcManager.ndefHandler
       .getNdefMessage()
       .then((msg) => {
-        setMessage(JSON.parse(msg?.ndefMessage[0].payload[0]));
+        const message = JSON.parse(msg?.ndefMessage[0].payload[0]);
+        setMessage(message);
+        Toast.show({
+          text1: message.address,
+          text2: message.name,
+          type: ToastType.Success,
+        });
       })
       .catch((e) => {
         console.log(e);

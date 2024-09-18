@@ -41,9 +41,11 @@ export const TransactionSheet = ({
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const snapPoints = useMemo(() => ["37%", "87%"], []);
   const handleSheetChange = useCallback((index: number) => {
-    onSnap?.(index);
-    const snapPoint = 6 * Number(snapPoints[index].replace("%", "")) + 10;
-    animationState.transitionTo(snapPoint as 232 | 532);
+    if (index >= 0) {
+      onSnap?.(index);
+      const snapPoint = 6 * Number(snapPoints[index].replace("%", "")) + 10;
+      animationState.transitionTo(snapPoint as 232 | 532);
+    }
   }, []);
 
   useEffect(() => {

@@ -19,10 +19,11 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icon.png",
-        "backgroundColor": "#000000"
+        "foregroundImage": "./assets/images/adaptive-icon-dark.png",
+        "backgroundColor": "#8C52FF"
       },
-      "package": "com.variance.origin"
+      "package": "com.variance.origin",
+      "permissions": ["android.permission.NFC"]
     },
     "plugins": [
       "expo-router",
@@ -33,10 +34,19 @@
           "faceIDPermission": "Allow Origin to authenticate with Face ID."
         }
       ],
-      "react-native-nfc-manager"
+      "react-native-nfc-manager",
+      ["react-native-bootsplash", { "assetsDir": "assets/bootsplash" }]
     ],
+    "autolinking": {
+      "exclude": ["expo-splash-screen"]
+    },
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ce5c1c25-f56c-4063-a3dc-691c46b384dc"
+      }
     }
   }
 }

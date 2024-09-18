@@ -55,11 +55,10 @@ export default function Home() {
   }
 
   return (
-    <BottomSheetModalProvider>
-      <SafeAreaView>
+    <SafeAreaView>
+      <BottomSheetModalProvider>
         <View className="h-full">
           <MotiScrollView
-            className="bg-transparent"
             contentContainerStyle={{
               flex: 1,
             }}
@@ -77,15 +76,15 @@ export default function Home() {
             <BalanceCard balance={balance} />
             <ActionableCards />
           </MotiScrollView>
+          <SyncKeySheet />
           <TransactionSheet
             onSnap={onSnap}
             refetch={refetch}
             transactions={transactions}
             isFetching={isFetching}
           />
-          <SyncKeySheet />
         </View>
-      </SafeAreaView>
-    </BottomSheetModalProvider>
+      </BottomSheetModalProvider>
+    </SafeAreaView>
   );
 }
