@@ -3,7 +3,7 @@ import "~/global.css";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ThemeProvider } from "@react-navigation/native";
-import { SplashScreen, Stack, useNavigation } from "expo-router";
+import { Stack, useNavigation } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { NavTheme } from "~/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { X } from "~/lib/icons/Close";
 import { ArrowLeft } from "~/lib/icons/Back";
+import BootSplash from "react-native-bootsplash";
 
 export const defaultModalOptions = {
   presentation: "modal" as const,
@@ -26,8 +27,6 @@ export const defaultModalOptions = {
 };
 
 export { ErrorBoundary } from "expo-router";
-
-SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = popins.useFonts({
@@ -74,8 +73,8 @@ export default function RootLayout() {
       }
       setAndroidNavigationBar(colorTheme);
       setIsColorSchemeLoaded(true);
-    })().finally(() => {
-      if (loaded) SplashScreen.hideAsync();
+    })().finally(async () => {
+      if (loaded) await BootSplash.hide({ fade: true });
     });
   }, [loaded, error]);
 
