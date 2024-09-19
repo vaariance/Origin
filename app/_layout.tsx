@@ -51,27 +51,29 @@ export default function RootLayout() {
     "poppins-extra-bold-italic": popins.Poppins_800ExtraBold_Italic,
   });
 
-  const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
+  const { colorScheme, setColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = useState(false);
   const navigation = useNavigation();
 
   useEffect(() => {
     if (error) throw error;
     (async () => {
-      const theme = await AsyncStorage.getItem("theme");
+      const theme = (await AsyncStorage.getItem("theme")) as
+        | "dark"
+        | "light"
+        | null;
+
       if (!theme) {
-        AsyncStorage.setItem("theme", "light");
+        AsyncStorage.setItem("theme", colorScheme);
         setIsColorSchemeLoaded(true);
         return;
       }
-      const colorTheme = "light";
-      if (colorTheme !== colorScheme) {
-        setColorScheme(colorTheme);
-        setAndroidNavigationBar(colorTheme);
-        setIsColorSchemeLoaded(true);
-        return;
+
+      if (theme !== colorScheme) {
+        setColorScheme(theme);
       }
-      setAndroidNavigationBar(colorTheme);
+
+      setAndroidNavigationBar(theme);
       setIsColorSchemeLoaded(true);
     })().finally(async () => {
       if (loaded) await BootSplash.hide({ fade: true });
@@ -108,7 +110,7 @@ export default function RootLayout() {
     <GestureHandlerRootView>
       <GlobalProvider>
         <ThemeProvider value={NavTheme[colorScheme]}>
-          <StatusBar style={"light"} />
+          <StatusBar style={colorScheme} />
           <Stack>
             <Stack.Screen
               name="index"
@@ -160,7 +162,23 @@ export default function RootLayout() {
             />
           </Stack>
           <PortalHost />
-          <Toaster />
+          <Toaster
+            theme={colorScheme}
+            toastOptions={{
+              titleStyle: {
+                fontFamily: "poppins-semibold",
+                color: NavTheme[colorScheme].colors.text,
+              },
+              descriptionStyle: {
+                fontFamily: "poppins-regular",
+                color: NavTheme[colorScheme].colors.text,
+              },
+              style: {
+                backgroundColor: NavTheme[colorScheme].colors.border,
+                marginTop: "2%",
+              },
+            }}
+          />
         </ThemeProvider>
       </GlobalProvider>
     </GestureHandlerRootView>
