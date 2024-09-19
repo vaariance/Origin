@@ -5,11 +5,6 @@ import { useGlobalContext } from "~/context/provider";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { Copy } from "~/lib/icons/Copy";
-import Animated, {
-  Easing,
-  FadeIn,
-  ReduceMotion,
-} from "react-native-reanimated";
 
 const AddressQrCenter = () => {
   const { user } = useGlobalContext();
@@ -23,7 +18,7 @@ const AddressQrCenter = () => {
   return (
     <View className="flex-1 items-center justify-around">
       <View>
-        <Animated.View className="rounded-2xl overflow-hidden bg-secondary">
+        <View className="rounded-2xl overflow-hidden bg-secondary">
           <QRCodeStyled
             data={user?.address}
             padding={25}
@@ -46,7 +41,7 @@ const AddressQrCenter = () => {
               href: require("../assets/images/256x256.png"),
             }}
           />
-        </Animated.View>
+        </View>
       </View>
 
       <View>

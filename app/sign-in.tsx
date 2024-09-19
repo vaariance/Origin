@@ -24,7 +24,7 @@ export default function Onboarding() {
 
   const handleSignIn = async () => {
     setBlocking(true);
-    const handleSuccess = async (response: Record<string, string>) => {
+    const handleSuccess = async (response: Record<string, any>) => {
       const key = newSigningKey();
       const account = (await key.getAccounts())[0];
       const user: OriginUser = {
@@ -56,6 +56,7 @@ export default function Onboarding() {
         text1: reason,
         type: ToastType.Error,
       });
+      setBlocking(false);
     };
 
     await signIn({ onSuccess: handleSuccess, onError: handleError });

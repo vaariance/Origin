@@ -12,6 +12,8 @@ provider:
 functions:
   api:
     handler: router.handler
+    timeout: 250
+    memorySize: 2048
     events:
       - httpApi: "*"
 

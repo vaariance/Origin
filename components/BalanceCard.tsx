@@ -21,7 +21,7 @@ export const BalanceCard = ({ hideFooter = false, balance = "0.00" }) => {
         .reduceMotion(ReduceMotion.Never)}
       className="p-4 items-center"
     >
-      <Card className="w-full max-w-sm shadow-2xl border-transparent rounded-3xl">
+      <Card className="w-full max-w-sm shadow-2xl rounded-3xl">
         <CardContent>
           <View className="flex-row items-center w-full gap-2 mt-6">
             <Text className="font-bold font-poppins-bold text-2xl text-muted-foreground/70">

@@ -36,7 +36,7 @@ export type BroadcastTxRequestType<T = Uint8Array> = [
   signature: { signature: string },
 ];
 
-export type BroadcastTxReturnType = {
+export type BroadcastTxReturnType = Partial<{
   success: boolean;
   height: number;
   txIndex: number;
@@ -54,7 +54,8 @@ export type BroadcastTxReturnType = {
   }>;
   gasUsed: bigint;
   gasWanted: bigint;
-} & ProxyErr;
+}> &
+  ProxyErr;
 
 export type GetTransactionsReturnType = { items: Transaction[] } & ProxyErr;
 
@@ -96,7 +97,11 @@ export const useProxy = () => {
     const response = await instance.post<GenerateSignDocReturnType<string>>(
       `/generate`,
       {
-        ...args,
+        signerAddress: args[0],
+        signerPubKey: args[1],
+        messages: args[2],
+        fee: args[3],
+        memo: args[4],
       }
     );
     if (response.data.error) {
@@ -108,15 +113,25 @@ export const useProxy = () => {
   const broadcastTx = async (
     ...args: BroadcastTxRequestType
   ): Promise<Result<BroadcastTxReturnType>> => {
-    const response = await instance.post<BroadcastTxReturnType>(`/broadcast`, {
-      bodyBytes: toBase64(args[0].bodyBytes),
-      authInfoBytes: toBase64(args[0].authInfoBytes),
-      signature: args[1].signature,
-    });
-    if (response.data.error) {
-      return Err(response.data.error);
+    try {
+      const response = await instance.post<BroadcastTxReturnType>(
+        `/broadcast`,
+        {
+          bodyBytes: toBase64(args[0].bodyBytes),
+          authInfoBytes: toBase64(args[0].authInfoBytes),
+          signature: args[1].signature,
+        }
+      );
+      if (response.data.error) {
+        return Err(response.data.error);
+      }
+      return Ok(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return Err(error.response?.data?.message || error.message);
+      }
+      return Err("An unexpected error occurred");
     }
-    return Ok(response.data);
   };
 
   const getTransactions = async (

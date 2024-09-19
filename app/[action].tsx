@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import ExoticNumberInput from "~/components/ExoticNumberInput";
 import { useState } from "react";
 import { Link, useLocalSearchParams } from "expo-router";
+import { Action } from "~/constants";
 
 const ActionSheet = () => {
   const query = useLocalSearchParams<
@@ -14,6 +15,16 @@ const ActionSheet = () => {
   >();
   const { balance } = useGlobalContext();
   const [value, setValue] = useState("");
+
+  const disable = () => {
+    switch (query.action) {
+      case Action.Buy:
+        return false;
+      case Action.Sell:
+      default:
+        return !value || Number(value) <= 0 || Number(value) > Number(balance);
+    }
+  };
 
   return (
     <View className="flex-1 items-center justify-between mb-12 mt-6">
@@ -46,9 +57,7 @@ const ActionSheet = () => {
         <Button
           className="rounded-2xl shadow-2xl w-4/5"
           size={"lg"}
-          disabled={
-            !value || Number(value) <= 0 || Number(value) > Number(balance)
-          }
+          disabled={disable()}
         >
           <Text className="font-bold font-poppins-bold">
             {query.actionButtonText ?? "Continue"}

@@ -6,7 +6,7 @@ import { cn } from "~/lib/utils";
 
 const NfcActiveAnimate = ({
   children,
-  success,
+  success = false,
 }: PropsWithChildren & { success: boolean }) => {
   return (
     <View className="flex-1 items-center justify-center">
@@ -30,7 +30,7 @@ const NfcActiveAnimate = ({
                 duration: 2000,
                 delay: i * 400,
                 easing: Easing.out(Easing.ease),
-                loop: true,
+                loop: !success,
                 repeatReverse: false,
               }}
               key={i}

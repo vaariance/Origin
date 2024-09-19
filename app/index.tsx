@@ -11,8 +11,11 @@ import { useMemo, useState } from "react";
 import { Transaction } from "~/lib/useProxy";
 import { MotiScrollView } from "moti";
 import { RefreshControl, View } from "react-native";
+import { useColorScheme } from "~/lib/useColorScheme";
+import { NavTheme } from "~/constants";
 
 export default function Home() {
+  const { colorScheme } = useColorScheme();
   const { loading, signedIn, fetchTransactions, balance, refreshBalance } =
     useGlobalContext();
   const [isFetching, setIsFetching] = useState<boolean>(true);
@@ -69,6 +72,10 @@ export default function Home() {
                   setTimeout(() => setRefreshing(false), 2000);
                   refetch();
                 }}
+                colors={[NavTheme[colorScheme].colors.text]}
+                progressBackgroundColor={
+                  NavTheme[colorScheme].colors.background
+                }
               />
             }
           >

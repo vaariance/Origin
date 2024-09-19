@@ -199,6 +199,7 @@ export const useAuth = () => {
     newSigningKey,
     syncSigningKey: _syncSigningKey,
     parsePayCommand,
-    executePayCommand: withBiometricAuth(executePayCommand),
+    executePayCommand,
+    executePayCommandWithAuth: withBiometricAuth(executePayCommand),
   };
 };

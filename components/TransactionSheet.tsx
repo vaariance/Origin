@@ -83,7 +83,7 @@ export const TransactionSheet = ({
     >
       <Card
         className="w-full h-full items-center
-     rounded-t-[36px] bg-background shadow-xl justify-between backdrop-blur p-4"
+     rounded-t-[36px] rounded-b-md bg-background shadow-xl justify-between backdrop-blur p-4"
       >
         <HomeContentWrapper
           sectionTitle="Transactions"
@@ -91,7 +91,7 @@ export const TransactionSheet = ({
         >
           <AnimatePresence>
             {isFetching ? (
-              <MotiView className="w-full h-full">
+              <View className="w-full h-full">
                 <FlatList
                   data={["a", "b", "c"]}
                   keyExtractor={(item) => item}
@@ -100,9 +100,9 @@ export const TransactionSheet = ({
                   )}
                   ItemSeparatorComponent={Separator}
                 />
-              </MotiView>
+              </View>
             ) : transactions?.length ? (
-              <MotiView className="w-full h-full">
+              <View className="w-full h-full">
                 <FlatList
                   data={transactions}
                   keyExtractor={(item) => item.txHash}
@@ -111,7 +111,7 @@ export const TransactionSheet = ({
                   )}
                   ItemSeparatorComponent={Separator}
                 />
-              </MotiView>
+              </View>
             ) : (
               <EmptyList state={animationState} />
             )}

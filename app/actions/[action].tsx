@@ -26,12 +26,13 @@ import {
 import { useGlobalContext } from "~/context/provider";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Action as ActionType } from "~/constants";
-import { BiometricAnimate } from "~/components/BiometricAnimate";
+// import { BiometricAnimate } from "~/components/BiometricAnimate";
 import { Ramp } from "~/components/Ramp";
 import { Toast, ToastType } from "~/lib/toast";
 import { NobleAddress, useAuth } from "~/lib/useAuth";
 import { fromBase64, fromHex } from "~/lib/cosmos/crypto";
 import { Account } from "~/lib/cosmos/account";
+import { decodeNDEFTextRecord, textDecoder } from "~/lib/utils";
 
 const HCESession = Object.assign(_HCESession, {
   async initialize(tag: NFCTagType4) {
@@ -80,7 +81,6 @@ const Action = () => {
         HCESession.start(tag, () => setIsRead(true)).then(setHceSession);
         break;
       case ActionType.Buy:
-        break;
       case ActionType.Sell:
       default:
         cleanUp(action);
@@ -88,9 +88,10 @@ const Action = () => {
     }
   }, []);
 
-  const transfer = async () => {
+  const transfer = async (message: Record<string, string> | undefined) => {
     const key = await getValueFor?.("origin_al_key");
     if (user && message && key) {
+      setMessage(message);
       const account = Account.fromMnemonic(JSON.parse(key).unencryptedKey);
       await executePayCommand({
         onSuccess: () => {
@@ -119,7 +120,7 @@ const Action = () => {
         command: parsePayCommand({
           from: user.address,
           to: message.address as NobleAddress,
-          amount: (Number(value) * 1e6).toString(),
+          amount: Math.floor(Number(value) * 1e6).toString(),
           memo: "",
         }),
       });
@@ -127,25 +128,61 @@ const Action = () => {
   };
 
   async function readNdef() {
-    await NfcManager.requestTechnology(NfcTech.Ndef);
-    await NfcManager.ndefHandler
-      .getNdefMessage()
-      .then((msg) => {
-        const message = JSON.parse(msg?.ndefMessage[0].payload[0]);
-        setMessage(message);
-      })
-      .then(transfer)
-      .catch((e) => {
-        console.log(e);
-        Toast.show({
-          text1: "Unable to connect to receipient",
-          text2: "please cancel current session an re-initiate request",
-          type: ToastType.Error,
-        });
-      })
-      .finally(async () => {
-        await NfcManager.cancelTechnologyRequest();
+    let message: Record<string, string> | undefined = undefined;
+    try {
+      await NfcManager.requestTechnology(NfcTech.IsoDep);
+
+      // MARK 1 - select NDEF tag application
+      const selectNdefApp = [
+        0x00, 0xa4, 0x04, 0x00, 0x07, 0xd2, 0x76, 0x00, 0x00, 0x85, 0x01, 0x01,
+        0x00,
+      ];
+      const selectResponse =
+        await NfcManager.isoDepHandler.transceive(selectNdefApp);
+
+      if (
+        selectResponse[selectResponse.length - 2] !== 0x90 ||
+        selectResponse[selectResponse.length - 1] !== 0x00
+      ) {
+        throw new Error("Failed to select NDEF application");
+      }
+
+      // MARK 2 - select capability container
+      const selectCC = [0x00, 0xa4, 0x00, 0x0c, 0x02, 0xe1, 0x03];
+      await NfcManager.isoDepHandler.transceive(selectCC);
+
+      // MARK 3 - read capability container
+      const readCC = [0x00, 0xb0, 0x00, 0x00, 0x0f];
+      await NfcManager.isoDepHandler.transceive(readCC);
+
+      // MARK 4 - select NDEF file
+      const selectNDEF = [0x00, 0xa4, 0x00, 0x0c, 0x02, 0xe1, 0x04];
+      await NfcManager.isoDepHandler.transceive(selectNDEF);
+
+      // MARK 5 - read NDEF file length
+      const readNdefLength = [0x00, 0xb0, 0x00, 0x00, 0x02];
+      const ndefLengthResponse =
+        await NfcManager.isoDepHandler.transceive(readNdefLength);
+
+      if (ndefLengthResponse.length >= 4) {
+        const ndefLength = (ndefLengthResponse[0] << 8) | ndefLengthResponse[1];
+        const readNdef = [0x00, 0xb0, 0x00, 0x02, ndefLength];
+        const ndefContent = await NfcManager.isoDepHandler.transceive(readNdef);
+
+        const decoded = decodeNDEFTextRecord(new Uint8Array(ndefContent));
+        if (decoded.text) {
+          message = JSON.parse(decoded.text);
+        }
+      }
+    } catch (error) {
+      Toast.show({
+        text1: "Near field communication failed",
+        text2: "please try again!",
+        type: ToastType.Warning,
       });
+    } finally {
+      NfcManager.cancelTechnologyRequest().then(() => transfer(message));
+    }
   }
 
   async function cleanUp(action: string) {
@@ -157,7 +194,6 @@ const Action = () => {
         await hceSession?.setEnabled(false);
         break;
       case ActionType.Buy:
-        break;
       case ActionType.Sell:
       default:
         break;
@@ -178,7 +214,7 @@ const Action = () => {
 
   return (
     <View className="flex-1">
-      <NfcActiveAnimate success={isRead}>
+      <NfcActiveAnimate success={isRead || message !== undefined}>
         <SmartphoneNfc className="w-8 h-8 text-white" />
       </NfcActiveAnimate>
       <MotiView className="h-1/2 pb-9" entering={SlideInDown.duration(500)}>
@@ -191,7 +227,7 @@ const Action = () => {
               <CardContent>
                 <Badge
                   variant={"outline"}
-                  className="flex-row gap-2 py-1.5 px-2 w-min mb-16 bg-success"
+                  className="flex-row gap-2 py-1.5 px-2 pr-3 w-min bg-background shadow-lg"
                 >
                   <Avatar alt="Wallet Avatar">
                     <AvatarImage source={{ uri: message.avatar }} />
@@ -201,7 +237,7 @@ const Action = () => {
                   </Avatar>
                   <Text
                     numberOfLines={1}
-                    className="text-md font-semibold font-poppins-semibold"
+                    className="text-md font-semibold font-poppins-semibold text-muted-foreground"
                   >
                     {`${message.name} - ${message.address?.slice(
                       0,
@@ -221,25 +257,21 @@ const Action = () => {
             )}
             <CardDescription className="text-xl text-center font-poppins-regular">
               {isRead
-                ? "Sender has your details, you can now close this page"
+                ? "You can close this page"
                 : message
-                  ? "Please authenticate to complete payment"
+                  ? "Waiting for confirmation..."
                   : action === ActionType.Receive
                     ? "move your device closer to the sender"
                     : "move your device closer to the receipient"}
             </CardDescription>
           </CardHeader>
           <CardFooter>
-            {message ? (
-              <BiometricAnimate />
-            ) : (
+            {message === undefined && !isRead && (
               <Button
                 className="rounded-2xl shadow-lg p-4"
                 onPress={() => cleanUp(action)}
               >
-                <Text className="font-bold font-poppins-bold">
-                  {isRead ? "Close" : "Cancel"}
-                </Text>
+                <Text className="font-bold font-poppins-bold">Cancel</Text>
               </Button>
             )}
           </CardFooter>

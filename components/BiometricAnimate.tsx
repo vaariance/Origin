@@ -1,11 +1,11 @@
-import { StyleSheet, View } from "react-native";
+import { PressableProps, StyleSheet, View } from "react-native";
 import React from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Fingerprint } from "~/lib/icons/Biometric";
 import { MotiView } from "moti";
 import { Button } from "./ui/button";
 
-export function BiometricAnimate() {
+export function BiometricAnimate(props: Pick<PressableProps, "onPress">) {
   return (
     <View className="flex-1 items-center justify-center">
       <View className="rounded-full w-24 h-24 items-center justify-center">
@@ -21,7 +21,7 @@ export function BiometricAnimate() {
           }}
           transition={{
             type: "timing",
-            duration: 4000,
+            duration: 500,
             loop: true,
             repeatReverse: false,
           }}
@@ -34,14 +34,7 @@ export function BiometricAnimate() {
           }}
         >
           <LinearGradient
-            colors={[
-              "#00FFFF", // Bright Cyan
-              "#1E90FF", // Dodger Blue
-              "#4169E1", // Royal Blue
-              "#8A2BE2", // Blue Violet
-              "#9400D3", // Dark Violet
-              "#8B008B", // Dark Magenta
-            ]}
+            colors={["#6D28D9", "#7C3AED"]}
             start={{ x: 0.0, y: 1.0 }}
             end={{ x: 1.0, y: 1.0 }}
             style={{
@@ -51,9 +44,13 @@ export function BiometricAnimate() {
             }}
           />
         </MotiView>
-        <Button variant={"ghost"}>
-          <View className="rounded-full bg-secondary w-[5.7rem] h-[5.7rem] items-center justify-center backdrop-blur-md">
-            <Fingerprint width={60} height={60} className="text-foreground" />
+        <Button variant={"ghost"} onPress={props.onPress}>
+          <View className="rounded-full bg-secondary w-[5.8rem] h-[5.8rem] items-center justify-center backdrop-blur-md">
+            <Fingerprint
+              width={40}
+              height={40}
+              className="text-foreground/70"
+            />
           </View>
         </Button>
       </View>
