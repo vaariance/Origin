@@ -4,6 +4,7 @@ import {
   mnemonicToSeed,
 } from "@dreson4/react-native-quick-bip39";
 import { Buffer as bf } from "@craftzdog/react-native-buffer";
+import { CryptoDigestAlgorithm, digest } from "expo-crypto";
 
 // js libs
 import {
@@ -171,9 +172,7 @@ export class Account {
     }
     const { privkey, pubkey } = account;
     const signBytes = makeSignBytes(signDoc);
-    const hashedMessage = Crypto.createHash("sha256")
-      .update(bf.from(signBytes).toString("hex"))
-      .digest();
+    const hashedMessage = await digest(CryptoDigestAlgorithm.SHA256, signBytes);
     const signature = await Secp256k1.createSignature(
       new Uint8Array(hashedMessage),
       privkey
