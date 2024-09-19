@@ -105,8 +105,8 @@ class OneTapGoogleSignInModule : Module() {
             sendEvent("onSignIn", response)
         } catch (e: GetCredentialException) {
             val response = mapOf("error" to (e.message ?: "Unknown error occurred during sign-in"))
-            if (response["error"].equals("No credentials available")) {
-                throw Exception("User has not signed up")
+            if (response["error"]!!.contains("Cannot find a matching credential", ignoreCase = true) || response["error"].equals("No credentials available")) {
+                throw Exception("Possibly user has not signed up")
             } else {
                 sendEvent("onSignIn", response)
             }
