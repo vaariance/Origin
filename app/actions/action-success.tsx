@@ -1,19 +1,19 @@
 import { Text, View } from "react-native";
-import React, { Component } from "react";
+import React from "react";
 import { Button } from "~/components/ui/button";
 import { Link } from "expo-router";
-import { MotiView } from "moti";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardFooter,
-  CardContent,
 } from "~/components/ui/card";
 import { ThumbsUp } from "~/lib/icons/ThumbsUp";
+import { useColorScheme } from "~/lib/useColorScheme";
 
 const ActionSuccess = () => {
+  const { isDarkColorScheme } = useColorScheme();
   return (
     <View className="flex-1 justify-end bg-background h-full">
       <Card className="w-full h-full items-center border-transparent justify-evenly py-4">
@@ -39,7 +39,12 @@ const ActionSuccess = () => {
               size={"lg"}
               className="rounded-2xl shadow-lg"
             >
-              <Text className="font-poppins-semibold font-semibold">
+              <Text
+                className="font-poppins-semibold text-foreground"
+                style={{
+                  color: isDarkColorScheme ? "#F9FAFB" : "#030712",
+                }}
+              >
                 Go to Wallet
               </Text>
             </Button>
