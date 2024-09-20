@@ -152,7 +152,7 @@ app.get("/txs/:address", async (req, res) => {
     const txHash = tx.hash.toUpperCase();
     const height = tx.height;
 
-    if (transactionsMap.has(txHash)) {
+    if (transactionsMap.has(txHash) || tx.tx_result.code > 0) {
       continue;
     }
 

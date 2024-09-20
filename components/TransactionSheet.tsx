@@ -1,6 +1,6 @@
 import { FlatList, View } from "react-native";
 import { Text } from "./ui/text";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { BottomSheetFlatList, BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Card } from "./ui/card";
 import Animated from "react-native-reanimated";
@@ -87,7 +87,8 @@ export const TransactionSheet = ({
       >
         <HomeContentWrapper
           sectionTitle="Transactions"
-          className="w-full h-full"
+          contentClassname="flex-1"
+          className="flex-1 w-full"
         >
           <AnimatePresence>
             {isFetching ? (
@@ -102,16 +103,14 @@ export const TransactionSheet = ({
                 />
               </View>
             ) : transactions?.length ? (
-              <View className="w-full h-full">
-                <FlatList
-                  data={transactions}
-                  keyExtractor={(item) => item.txHash}
-                  renderItem={({ item, index }) => (
-                    <TransactionItem item={item} index={index} />
-                  )}
-                  ItemSeparatorComponent={Separator}
-                />
-              </View>
+              <BottomSheetFlatList
+                data={transactions}
+                keyExtractor={(item) => item.txHash}
+                renderItem={({ item, index }) => (
+                  <TransactionItem item={item} index={index} />
+                )}
+                ItemSeparatorComponent={Separator}
+              />
             ) : (
               <EmptyList state={animationState} />
             )}

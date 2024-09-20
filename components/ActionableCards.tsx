@@ -55,7 +55,7 @@ const actions: {
 
 export const ActionableCards = () => {
   return (
-    <HomeContentWrapper className="mt-6">
+    <HomeContentWrapper className="mt-6" contentClassname="items-center">
       <Animated.View
         layout={CurvedTransition.easingX(Easing.in(Easing.exp))
           .easingY(Easing.out(Easing.quad))

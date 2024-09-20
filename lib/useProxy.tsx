@@ -124,8 +124,10 @@ export const useProxy = () => {
       );
       if (response.data.error) {
         return Err(response.data.error);
+      } else if (response.data.success) {
+        return Ok(response.data);
       }
-      return Ok(response.data);
+      return Err("Transaction failed with code: " + response.data.code);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         return Err(error.response?.data?.message || error.message);

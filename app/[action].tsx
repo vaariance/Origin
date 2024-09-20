@@ -39,7 +39,7 @@ const ActionSheet = () => {
           >
             <Usdc className="h-8 w-8" />
             <Text className="text-base font-normal font-poppins-regular">
-              {Number(balance).toFixed(0)} USDC available
+              {Math.floor(Number(balance))} USDC available
             </Text>
           </Badge>
         </View>
